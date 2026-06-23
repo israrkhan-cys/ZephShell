@@ -51,6 +51,7 @@ int Execute_pipe_Cammand(char ** args, int pip){
     //int count_pip= Count_pipes(args);
     char **cmd1, **cmd2;
     cmd1=args;
+    args[pip]= NULL;
     cmd2=&args[pip+1];
 
     int pipefd[2];
@@ -164,7 +165,6 @@ int main(){
         }else if(strcmp(args[0],"help")==0) {
             help();
         }else if (pip != -1){
-            printf("ipiee");
             Execute_pipe_Cammand(args,pip);
         }else{
          execute(args);
