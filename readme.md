@@ -5,8 +5,7 @@ A Unix shell built from scratch in C.
 ```bash
 git clone https://github.com/israrkhan-cys/zephshell
 cd zephshell
-gcc main.c -o main
-./main
+./build.sh
 ```
 
 ## Features
@@ -15,6 +14,6 @@ gcc main.c -o main
 - strtok-based argument parsing
 - pipes 
 - Redirection (>,>>,<)
-- Multiple builtin cammand
+- Multiple builtin cammands
 
 Built by [Zephyr](https://israrkhan-cys.github.io)

@@ -7,6 +7,14 @@
 
 #define MAX_ARGS 64
 
+char * prompt(){
+	char buffer[100];
+	
+	FILE * fp= popen("pwd",r);
+	
+}
+
+
 void execute(char **args){
     int x;
     x =fork();
@@ -180,8 +188,6 @@ void handle_redirection(char **args, int red){
 
 
 }
-
-
 
 void changeDirectory(char **args){
     if(args[1] == NULL){
