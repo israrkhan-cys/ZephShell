@@ -13,7 +13,8 @@ gcc main.c -o main
 - Command execution with arguments and flags
 - fork/exec/wait process model
 - strtok-based argument parsing
-- pipes (Not completed yet only works for one pipe in cmd)
+- pipes 
+- Redirection (>,>>,<)
 - Multiple builtin cammand
 
 Built by [Zephyr](https://israrkhan-cys.github.io)

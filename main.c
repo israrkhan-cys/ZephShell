@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <string.h>
+#include <fcntl.h>
 
 #define MAX_ARGS 64
 
@@ -35,6 +36,19 @@ int check_for_pipes(char **args, int pip){
     }
     return pip;
 }
+
+int check_for_redirection(char **args, int pip){
+    int i=0;
+    while(args[i]!= NULL){
+        if(strcmp(args[i],"<")==0 || strcmp(args[i],">>")==0  || strcmp(args[i],">")==0){
+            pip=i;
+            break;
+        }
+        i++;
+    }
+    return pip;
+}
+
 
 // int Count_pipes(char **args){
 // 	int count=0, i=0; 
@@ -99,6 +113,76 @@ int Execute_pipe_Cammand(char ** args, int pip){
 }
 
 
+void handle_redirection(char **args, int red){
+    char **cmd1, **cmd2;
+    cmd1=args;
+    char * type= args[red];
+    args[red]= NULL;
+    cmd2=&args[red+1];
+
+    if(strcmp(type, ">")==0){
+        pid_t pid1=fork();
+
+        if(pid1==-1){
+            perror("fork");
+            exit(EXIT_FAILURE);
+        }
+
+        if(pid1==0){
+           int fd = open(cmd2[0], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+           dup2(fd,STDOUT_FILENO);
+           close(fd);
+           execvp(cmd1[0],cmd1);  
+        }
+        if(pid1 > 0){
+        wait(&pid1);
+        }
+
+    }else if(strcmp(type, ">>")==0){
+        pid_t pid2=fork();
+
+        if(pid2==-1){
+            perror("fork");
+            exit(EXIT_FAILURE);
+        }
+
+        if(pid2==0){
+           int fd = open(cmd2[0], O_WRONLY | O_CREAT | O_APPEND, 0644);
+           dup2(fd,STDOUT_FILENO);
+           close(fd);
+           execvp(cmd1[0],cmd1);  
+        }
+        if(pid2 > 0){
+        wait(&pid2);
+        }
+
+    }else if(strcmp(type, "<")==0){
+        pid_t pid2=fork();
+
+        if(pid2==-1){
+            perror("fork");
+            exit(EXIT_FAILURE);
+        }
+
+        if(pid2==0){
+            int fd=open(cmd2[0],O_RDONLY,0644);
+            dup2(fd,STDIN_FILENO);
+            close(fd);
+            execvp(cmd1[0],cmd1);
+        }
+
+        if(pid2>0){
+            wait(&pid2);
+        }
+    }else{
+        perror("Wrong");
+    }
+
+
+}
+
+
+
 void changeDirectory(char **args){
     if(args[1] == NULL){
         perror("Error: No arguments");
@@ -154,9 +238,10 @@ int main(){
         }
 
         char **args= split_cammand(lineInput);
-        int pip=-1;
+        int pip=-1, red=-1;
         pip=check_for_pipes(args,pip); // checking if the cammand contain pipe to handle it differently 
-
+        red=check_for_redirection(args,pip);
+        
         if(strcmp(args[0],"cd")==0){
             changeDirectory(args);
         }else if(strcmp(args[0],"exit")==0){
@@ -166,6 +251,8 @@ int main(){
             help();
         }else if (pip != -1){
             Execute_pipe_Cammand(args,pip);
+        }else if(red !=-1){
+            handle_redirection(args,red);
         }else{
          execute(args);
         }
@@ -178,3 +265,4 @@ int main(){
     return 0;
 }
 
+  
